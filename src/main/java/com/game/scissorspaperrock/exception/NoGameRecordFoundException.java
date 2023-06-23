@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 public class NoGameRecordFoundException extends RuntimeException {
     private ErrorCode errorCode;
 
-    public NoGameRecordFoundException(String message, ErrorCode errorCode){
+    public NoGameRecordFoundException(String message, ErrorCode errorCode) {
         super(message);
         this.errorCode = errorCode;
     }

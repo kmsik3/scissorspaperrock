@@ -53,6 +53,4 @@ public class GameController {
         log.info("Player name: [{}] tries to calculate win ratio", playerId);
         return gameService.getWinRate(playerId);
     }
-
-
 }

@@ -11,7 +11,7 @@ public class ErrorResponse {
     private String message;
     private String code;
 
-    public ErrorResponse(ErrorCode errorCode){
+    public ErrorResponse(ErrorCode errorCode) {
         this.status = errorCode.getStatus();
         this.message = errorCode.getMessage();
         this.code = errorCode.getErrorCode();

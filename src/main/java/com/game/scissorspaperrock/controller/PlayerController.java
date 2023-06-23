@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 
 @Slf4j
@@ -74,10 +73,5 @@ public class PlayerController {
     @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         playerService.refreshToken(request, response);
-    }
-
-    @GetMapping("/test")
-    public Map<String, String> printAllProps() {
-        return Map.of("jwtSecret", applicationConfigProperties.secret());
     }
 }

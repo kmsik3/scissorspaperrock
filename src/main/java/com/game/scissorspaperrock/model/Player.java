@@ -18,7 +18,7 @@ public class Player implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer idx;
 
-    @Column(unique=true)
+    @Column(unique = true)
     private String email;
 
     private String firstName;
