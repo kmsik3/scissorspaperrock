@@ -56,7 +56,6 @@ public class PlayerService {
             savePlayerToken(result, jwtToken);
             return buildSignUpResponse(result, jwtToken, refreshToken);
         } catch (DataIntegrityViolationException e) {
-            log.error("This is the Id: {}", signUpReq.getEmail());
             throw new EmailDuplicateException(String.format("Player's email: [%s] is duplicated", signUpReq.getEmail()), ErrorCode.EMAIL_DUPLICATION);
         }
 
