@@ -43,13 +43,7 @@ public class PlayerService {
 
     public ResponseEntity<PlayerSignupResp> signUp(SignUpReq signUpReq) {
         try {
-            String encodedPassword = bCryptPasswordEncoder.encode(signUpReq.getPassword());
-            Player newPlayer = new Player();
-            newPlayer.setEmail(signUpReq.getEmail());
-            newPlayer.setPassword(encodedPassword);
-            newPlayer.setFirstName(signUpReq.getFirstName());
-            newPlayer.setLastName(signUpReq.getLastName());
-            newPlayer.setRole(Role.USER);
+            Player newPlayer = buildNewPlayer(signUpReq);
             Player result = playerRepository.save(newPlayer);
             String jwtToken = jwtService.generateToken(newPlayer);
             String refreshToken = jwtService.generateRefreshToken(newPlayer);
@@ -58,7 +52,21 @@ public class PlayerService {
         } catch (DataIntegrityViolationException e) {
             throw new EmailDuplicateException(String.format("Player's email: [%s] is duplicated", signUpReq.getEmail()), ErrorCode.EMAIL_DUPLICATION);
         }
+    }
 
+    private Player buildNewPlayer(SignUpReq signUpReq) {
+        String encodedPassword = bCryptPasswordEncoder.encode(signUpReq.getPassword());
+        Player newPlayer = new Player();
+        newPlayer.setEmail(signUpReq.getEmail());
+        newPlayer.setPassword(encodedPassword);
+        newPlayer.setFirstName(signUpReq.getFirstName());
+        newPlayer.setLastName(signUpReq.getLastName());
+        if ("ADMIN".equalsIgnoreCase(signUpReq.getRole().name())) {
+            newPlayer.setRole(Role.ADMIN);
+        } else {
+            newPlayer.setRole(Role.USER);
+        }
+        return newPlayer;
     }
 
     private void savePlayerToken(Player result, String jwtToken) {

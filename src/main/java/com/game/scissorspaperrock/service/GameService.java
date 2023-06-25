@@ -8,6 +8,7 @@ import com.game.scissorspaperrock.entity.Hand;
 import com.game.scissorspaperrock.entity.Result;
 import com.game.scissorspaperrock.exception.NoGameRecordFoundException;
 import com.game.scissorspaperrock.model.Game;
+import com.game.scissorspaperrock.model.Role;
 import com.game.scissorspaperrock.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -25,10 +27,17 @@ public class GameService {
     private final GameRepository gameRepository;
 
     public ResponseEntity<GamePlayResp> gameStart(GamePlayReq gamePlayReq) {
-        Hand computerPick = Hand.getRandomPick();
-        log.info("This is what computer picks: {}", computerPick.name());
+        Hand computerPick;
+        log.info("This is role value from the requestBody: {}", gamePlayReq.getRole().name());
+        if (Role.ADMIN.name().equalsIgnoreCase(gamePlayReq.getRole().name()) &&
+                gamePlayReq.isUseAdminAdvantage()) {
+            log.info("Using Admin advantage for winning percentage");
+            computerPick = setHandPercentage(gamePlayReq.getDesiredWinPercentage(), gamePlayReq.getPlayerPick());
+        } else {
+            log.info("random percentage of winning");
+            computerPick = Hand.getRandomPick();
+        }
         Result result = checkResult(Hand.valueOf(gamePlayReq.getPlayerPick()), computerPick);
-        log.info("This is the result of the game: {}", result.name());
         Game game = setGame(gamePlayReq, computerPick, result);
         Game saveResult = gameRepository.save(game);
         return buildGamePlayResponse(saveResult);
@@ -95,4 +104,45 @@ public class GameService {
         gameWinRateResp.setCountLoss(countLoss);
         return ResponseEntity.ok().body(gameWinRateResp);
     }
+
+    private Hand setHandPercentage(int desiredWinPercentage, String playerPick) {
+        Random randomSelectHand = new Random();
+        int randomNum = randomSelectHand.nextInt(100);
+        int drawAndLossPercentage = (100 - desiredWinPercentage) / 2;
+
+        switch (playerPick) {
+            case "SCISSORS" -> {
+                if (randomNum <= desiredWinPercentage - 1) {
+                    return Hand.PAPER;
+                } else if (randomNum >= desiredWinPercentage && randomNum <= desiredWinPercentage + drawAndLossPercentage - 1) {
+                    return Hand.ROCK;
+                } else {
+                    return Hand.SCISSORS;
+                }
+            }
+            case "PAPER" -> {
+                if (randomNum <= desiredWinPercentage - 1) {
+                    return Hand.ROCK;
+                } else if (randomNum >= desiredWinPercentage && randomNum <= desiredWinPercentage + drawAndLossPercentage - 1) {
+                    return Hand.SCISSORS;
+                } else {
+                    return Hand.PAPER;
+                }
+            }
+            case "ROCK" -> {
+                if (randomNum <= desiredWinPercentage - 1) {
+                    return Hand.SCISSORS;
+                } else if (randomNum >= desiredWinPercentage && randomNum <= desiredWinPercentage + drawAndLossPercentage - 1) {
+                    return Hand.PAPER;
+                } else {
+                    return Hand.ROCK;
+                }
+            }
+            default -> {
+                log.info("Something went wrong and desiredWinPercentage is not applied");
+                return Hand.getRandomPick();
+            }
+        }
+    }
+
 }

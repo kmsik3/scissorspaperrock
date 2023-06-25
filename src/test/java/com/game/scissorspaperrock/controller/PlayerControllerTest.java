@@ -95,4 +95,22 @@ class PlayerControllerTest {
                 .andExpect(jsonPath("$.accessToken").exists())
                 .andExpect(jsonPath("$.refreshToken").exists());
     }
+
+    @Test
+    void signUp_emailDuplicatedException() throws Exception {
+        if (playerRepository.findByEmail(signUpReq.getEmail()).isEmpty()) {
+            Player newPlayer = new Player();
+            newPlayer.setEmail("testEmail@gmail.com");
+            newPlayer.setFirstName("Tester");
+            newPlayer.setLastName("Kim");
+            newPlayer.setPassword(passwordEncoder.encode("testtest"));
+            newPlayer.setRole(Role.USER);
+            playerRepository.save(newPlayer);
+        }
+        mockMvc.perform(post("/api/v1/player/signup")
+                        .content(objectMapper.writeValueAsString(signUpReq))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Player email is duplicated"));
+    }
 }

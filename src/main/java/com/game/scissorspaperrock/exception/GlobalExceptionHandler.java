@@ -38,8 +38,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        log.error("handleException", ex);
-        ErrorResponse response = new ErrorResponse(ErrorCode.Unauthorized);
+        log.error("handleBadCredentialsException", ex);
+        ErrorResponse response = new ErrorResponse(ErrorCode.UNAUTHORIZED);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 

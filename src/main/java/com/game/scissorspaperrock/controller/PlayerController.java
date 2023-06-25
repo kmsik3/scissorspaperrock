@@ -5,7 +5,6 @@ import com.game.scissorspaperrock.dto.request.AuthenticationReq;
 import com.game.scissorspaperrock.dto.request.SignUpReq;
 import com.game.scissorspaperrock.dto.response.AuthenticationResp;
 import com.game.scissorspaperrock.dto.response.PlayerSignupResp;
-import com.game.scissorspaperrock.secrets.ApplicationConfigProperties;
 import com.game.scissorspaperrock.service.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +30,6 @@ import java.io.IOException;
 public class PlayerController {
 
     private final PlayerService playerService;
-    private final ApplicationConfigProperties applicationConfigProperties;
 
     @GetMapping()
     public String checkConnection() {

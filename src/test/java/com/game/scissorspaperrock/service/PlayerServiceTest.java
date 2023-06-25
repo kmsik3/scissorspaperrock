@@ -7,6 +7,7 @@ import com.game.scissorspaperrock.dto.response.PlayerSignupResp;
 import com.game.scissorspaperrock.model.Player;
 import com.game.scissorspaperrock.model.Role;
 import com.game.scissorspaperrock.repository.PlayerRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -72,6 +74,17 @@ class PlayerServiceTest {
         ResponseEntity<AuthenticationResp> response = playerService.login(authenticationReq);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void loginWithWrongCredential() {
+        BadCredentialsException thrown = Assertions.assertThrows(BadCredentialsException.class, () -> {
+            AuthenticationReq authenticationReq = new AuthenticationReq();
+            authenticationReq.setEmail("wrongid@gmail.com");
+            authenticationReq.setPassword("wrongpassword");
+            playerService.login(authenticationReq);
+        });
+        Assertions.assertEquals("Bad credentials", thrown.getMessage());
     }
 
 }

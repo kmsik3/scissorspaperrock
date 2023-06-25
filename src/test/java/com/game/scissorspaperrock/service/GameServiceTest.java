@@ -3,6 +3,7 @@ package com.game.scissorspaperrock.service;
 import com.game.scissorspaperrock.dto.request.GamePlayReq;
 import com.game.scissorspaperrock.dto.response.GamePlayResp;
 import com.game.scissorspaperrock.dto.response.GameWinRateResp;
+import com.game.scissorspaperrock.model.Role;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,10 +30,11 @@ class GameServiceTest {
         gamePlayReq = new GamePlayReq();
         gamePlayReq.setPlayerId("testEmail@gmail.com");
         gamePlayReq.setPlayerPick("ROCK");
+        gamePlayReq.setRole(Role.USER);
     }
 
     @Test
-    void gameStart() {
+    void gameStar() {
         ResponseEntity<GamePlayResp> response = gameService.gameStart(gamePlayReq);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(gamePlayReq.getPlayerId(), response.getBody().getPlayerId());

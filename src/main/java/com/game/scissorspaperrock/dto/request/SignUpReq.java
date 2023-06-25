@@ -1,5 +1,6 @@
 package com.game.scissorspaperrock.dto.request;
 
+import com.game.scissorspaperrock.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -19,4 +20,6 @@ public class SignUpReq {
 
     @NotBlank
     private String password;
+
+    private Role role = Role.USER;
 }
