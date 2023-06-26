@@ -36,6 +36,18 @@ public class PlayerController {
         return "Hello, you are connected";
     }
 
+    @Operation(description = "request for registration",
+            security = {@SecurityRequirement(name = "bearer-key")},
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Successfully registered"),
+                    @ApiResponse(responseCode = "500", description = "internal server error")
+            })
+    @PostMapping("/signup")
+    public ResponseEntity<PlayerSignupResp> signUp(@RequestBody @Valid SignUpReq signUpReq) {
+        log.info("Signup endpoint is reached with email {}", signUpReq.getEmail());
+        return playerService.signUp(signUpReq);
+    }
+
     @Operation(description = "request for logging in",
             security = {@SecurityRequirement(name = "bearer-key")},
             responses = {
@@ -47,18 +59,6 @@ public class PlayerController {
     public ResponseEntity<AuthenticationResp> login(@RequestBody AuthenticationReq request) {
         log.info("Login endpoint is reached with email {}", request.getEmail());
         return playerService.login(request);
-    }
-
-    @Operation(description = "request for registration",
-            security = {@SecurityRequirement(name = "bearer-key")},
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Successfully registered"),
-                    @ApiResponse(responseCode = "500", description = "internal server error")
-            })
-    @PostMapping("/signup")
-    public ResponseEntity<PlayerSignupResp> signUp(@RequestBody @Valid SignUpReq signUpReq) {
-        log.info("Signup endpoint is reached with email {}", signUpReq.getEmail());
-        return playerService.signUp(signUpReq);
     }
 
     @Operation(description = "request for refreshing token",
