@@ -1,5 +1,6 @@
 package com.game.scissorspaperrock.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationReq {
 
+    @Schema(name = "player Email", example = "test@gmail.com")
     @NotBlank
     @Email
     private String email;

@@ -30,6 +30,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * This is a service class for all logic related to registering player and logging in player.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,9 +41,15 @@ public class PlayerService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
-
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    /**
+     * This handles signing up a user. It firstly, builds a player object with data from request body.
+     * After that, it gets a new jwt and refresh token and save jwt to database.
+     * Finally, it returns created user data with jwt.
+     * @param signUpReq
+     * @return ResponseEntity with PlayerSignupResp
+     */
     public ResponseEntity<PlayerSignupResp> signUp(SignUpReq signUpReq) {
         try {
             Player newPlayer = buildNewPlayer(signUpReq);
@@ -54,6 +63,12 @@ public class PlayerService {
         }
     }
 
+    /**
+     * This builds a player object and returns it.
+     *
+     * @param signUpReq
+     * @return Player
+     */
     private Player buildNewPlayer(SignUpReq signUpReq) {
         String encodedPassword = bCryptPasswordEncoder.encode(signUpReq.getPassword());
         Player newPlayer = new Player();
@@ -69,6 +84,12 @@ public class PlayerService {
         return newPlayer;
     }
 
+    /**
+     * This saves a jwt to database with player object.
+     *
+     * @param result
+     * @param jwtToken
+     */
     private void savePlayerToken(Player result, String jwtToken) {
         Token token = Token.builder()
                 .player(result)
@@ -80,6 +101,15 @@ public class PlayerService {
         tokenRepository.save(token);
     }
 
+    /**
+     * This builds final response for signing up.
+     * Firstly, it builds PlayerSignupResp and covers it with ResponseEntity.
+     *
+     * @param result
+     * @param jwtToken
+     * @param refreshToken
+     * @return ResponseEntity with PlayerSignupResp
+     */
     private ResponseEntity<PlayerSignupResp> buildSignUpResponse(Player result, String jwtToken, String refreshToken) {
         PlayerSignupResp playerSignupResp = new PlayerSignupResp();
         playerSignupResp.setIdx(result.getIdx());
@@ -90,6 +120,17 @@ public class PlayerService {
         return ResponseEntity.ok().body(playerSignupResp);
     }
 
+    /**
+     * This handles user login.
+     * Firstly, it checks user email and password are matching correctly with authenticationManager.
+     * Secondly, it gets the user data from database and builds a new jwt and refresh token.
+     * Thirdly, it revokes all tokens which was assigned to the user previously.
+     * Fourthly, it saves the new jwt with player data.
+     * Lastly, it calls a function to build final response for logging.
+     *
+     * @param request
+     * @return ResponseEntity with AuthenticationResp
+     */
     public ResponseEntity<AuthenticationResp> login(AuthenticationReq request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -106,6 +147,14 @@ public class PlayerService {
         return buildLogInResponse(jwtToken, refreshToken, player);
     }
 
+    /**
+     * This builds final response for logging in request.
+     *
+     * @param accessToken
+     * @param refreshToken
+     * @param player
+     * @return ResponseEntity with AuthenticationResp
+     */
     private ResponseEntity<AuthenticationResp> buildLogInResponse(String accessToken, String refreshToken, Player player) {
         AuthenticationResp authenticationResp = AuthenticationResp.builder()
                 .accessToken(accessToken)
@@ -115,6 +164,15 @@ public class PlayerService {
         return ResponseEntity.ok().body(authenticationResp);
     }
 
+    /**
+     * This handles re-issuing jwt with refresh token.
+     * In this function, FrontEnd changes expired jwt to refresh token and pass it in Authorization in HttpHeaders.
+     * It uses refresh token to generate a new jwt.
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
@@ -140,6 +198,11 @@ public class PlayerService {
         }
     }
 
+    /**
+     * This revokes all tokens related to a player passed in parameter.
+     *
+     * @param player
+     */
     private void revokeAllUserTokens(Player player) {
         List<Token> validPlayerTokens = tokenRepository.findAllValidTokenByUser(player.getIdx());
         if (validPlayerTokens.isEmpty())

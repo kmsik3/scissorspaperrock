@@ -14,19 +14,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * This controller is for starting a game, getting win rate and changing percentage of computer's pick
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/game")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin
 public class GameController {
 
     private final GameService gameService;
-
-    @GetMapping("/hello")
-    public String checkConnection() {
-        return "Hello, you are connected";
-    }
 
     @Operation(description = "request for starting scissors paper rock game",
             security = {@SecurityRequirement(name = "bearer-key")},

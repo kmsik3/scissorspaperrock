@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
-
+/**
+ * This controller is for registration and login of users
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/player")
@@ -30,11 +32,6 @@ import java.io.IOException;
 public class PlayerController {
 
     private final PlayerService playerService;
-
-    @GetMapping()
-    public String checkConnection() {
-        return "Hello, you are connected";
-    }
 
     @Operation(description = "request for registration",
             security = {@SecurityRequirement(name = "bearer-key")},
@@ -51,7 +48,7 @@ public class PlayerController {
     @Operation(description = "request for logging in",
             security = {@SecurityRequirement(name = "bearer-key")},
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully logged in"),
+                    @ApiResponse(responseCode = "201", description = "Successfully logged in"),
                     @ApiResponse(responseCode = "401", description = "Login data is wrong"),
                     @ApiResponse(responseCode = "500", description = "internal server error")
             })

@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This is a service class for all logic related to playing the game, checking win rate and changing percentage of win.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,13 @@ public class GameService {
 
     private final GameRepository gameRepository;
 
+    /**
+     * This handles game play. Firstly, it checks the role of user
+     * and also check using the advantage of winning percentage.
+     * After that, it checks the result of the game and save it to database and return the result.
+     * @param gamePlayReq
+     * @return ResponseEntity with GamePlayResp
+     */
     public ResponseEntity<GamePlayResp> gameStart(GamePlayReq gamePlayReq) {
         Hand computerPick;
         log.info("This is role value from the requestBody: {}", gamePlayReq.getRole().name());
@@ -43,6 +53,15 @@ public class GameService {
         return buildGamePlayResponse(saveResult);
     }
 
+    /**
+     * This handles getting win rate of a user.
+     * Firstly, it gets all game results of a user
+     * and if there is no game record, it throws an exception named NoGameRecordFoundException.
+     * It triggers calculateWinRate function to get win rate and some other data
+     * (E.g. total game count, total win count, etc)
+     * @param playerId
+     * @return ResponseEntity with GameWinRateResp
+     */
     public ResponseEntity<GameWinRateResp> getWinRate(String playerId) {
         List<Game> gameResults = gameRepository.findByPlayerId(playerId);
         if (gameResults.isEmpty()) {
@@ -51,7 +70,14 @@ public class GameService {
         return calculateWinRate(gameResults, playerId);
     }
 
-
+    /**
+     * This sets Game entity to save it to database
+     *
+     * @param gamePlayReq
+     * @param computerPick
+     * @param result
+     * @return Game
+     */
     private Game setGame(GamePlayReq gamePlayReq, Hand computerPick, Result result) {
         Game game = new Game();
         game.setPlayerId(gamePlayReq.getPlayerId());
@@ -61,6 +87,14 @@ public class GameService {
         return game;
     }
 
+    /**
+     * This checks the result of a game.
+     * It uses function "isWin" in Enum.
+     *
+     * @param playerPick
+     * @param computerPick
+     * @return Result enum
+     */
     private Result checkResult(Hand playerPick, Hand computerPick) {
         if (playerPick.isWin(computerPick)) {
             return Result.WIN;
@@ -71,6 +105,13 @@ public class GameService {
         }
     }
 
+    /**
+     * This builds final return for Game playing.
+     * It builds GamePlayResp entity and covers it with ResponseEntity.
+     *
+     * @param game
+     * @return ResponseEntity with GamePlayResp
+     */
     private ResponseEntity<GamePlayResp> buildGamePlayResponse(Game game) {
         GamePlayResp responseBody = new GamePlayResp();
         responseBody.setPlayerId(game.getPlayerId());
@@ -80,6 +121,15 @@ public class GameService {
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 
+    /**
+     * This calculates win rate and collect some other data like total game count, total win count etc.
+     * After that, it triggers buildWinRateResponse function
+     * in order to build final response for calculating win rate response.
+     *
+     * @param results
+     * @param playerId
+     * @return ResponseEntity with GameWinRateResp
+     */
     private ResponseEntity<GameWinRateResp> calculateWinRate(List<Game> results, String playerId) {
         double countGame = results.size();
         double countWin = results.stream().filter(i -> "WIN".equalsIgnoreCase(i.getResult())).count();
@@ -91,6 +141,17 @@ public class GameService {
         return buildWinRateResponse(playerId, countGame, countWin, countDraw, countLoss, winningPercentage);
     }
 
+    /**
+     * This builds final response for calculating win rate with parameters from calculateWinRate function.
+     *
+     * @param playerId
+     * @param countGame
+     * @param countWin
+     * @param countDraw
+     * @param countLoss
+     * @param winningPercentage
+     * @return ResponseEntity with GameWinRateResp
+     */
     private ResponseEntity<GameWinRateResp> buildWinRateResponse(String playerId,
                                                                  double countGame, double countWin,
                                                                  int countDraw, int countLoss,
@@ -105,6 +166,14 @@ public class GameService {
         return ResponseEntity.ok().body(gameWinRateResp);
     }
 
+    /**
+     * This sets specific percentage of what computer picks (Scissors, paper or rock).
+     * For this, it divides three cases of what a user picks and adds percentage of random function for computer's pick.
+     *
+     * @param desiredWinPercentage
+     * @param playerPick
+     * @return Hand enum
+     */
     private Hand setHandPercentage(int desiredWinPercentage, String playerPick) {
         Random randomSelectHand = new Random();
         int randomNum = randomSelectHand.nextInt(100);

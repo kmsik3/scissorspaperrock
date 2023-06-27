@@ -18,22 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * This is the first one to be executed when a request comes in
- * Check whether JWT is in the header or not
- * Validation process will start here
- * 1. extract userEmail or ID from Token
- * 2. call UserDetailsService and get user information from database
- * 3. response from DB whether the user is existing or not
- * 4. if user is not existed, return 403
- * 5. validate JWT based on userinfo from database
- * 6. if token is not valid (expired or wrong token), return 403
- * 7. if token is valid, update the securitycontextholder.
- * 8. once user is authenticated, it calles DispatcherServlet (framework controlls it) and goes to controller
- * OncePerRequestFilter is a Filter to trigger everytime a request comes in
- *
- *
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
