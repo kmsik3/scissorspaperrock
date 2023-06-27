@@ -169,12 +169,14 @@ public class GameService {
     /**
      * This sets specific percentage of what computer picks (Scissors, paper or rock).
      * For this, it divides three cases of what a user picks and adds percentage of random function for computer's pick.
+     * There is an adjustment function for some cases that desiredWinPercentage is less than 0 or more than 100
      *
      * @param desiredWinPercentage
      * @param playerPick
      * @return Hand enum
      */
     private Hand setHandPercentage(int desiredWinPercentage, String playerPick) {
+        desiredWinPercentage = adjustDesiredWinPercentage(desiredWinPercentage);
         Random randomSelectHand = new Random();
         int randomNum = randomSelectHand.nextInt(100);
         int drawAndLossPercentage = (100 - desiredWinPercentage) / 2;
@@ -212,6 +214,20 @@ public class GameService {
                 return Hand.getRandomPick();
             }
         }
+    }
+
+    /**
+     * This checks desiredWinPercentage value and if it is less than 0, make it 0
+     * and if it is more than 100, make it 100
+     * or just return desiredWinPercentage value
+     *
+     * @param desiredWinPercentage
+     * @return int desiredWinPercentage
+     */
+    private int adjustDesiredWinPercentage(int desiredWinPercentage) {
+        if (desiredWinPercentage < 0) {
+            return 0;
+        } else return Math.min(desiredWinPercentage, 100);
     }
 
 }
